@@ -51,3 +51,35 @@ class MatchDay:
     def __call__(self, match):
         self.day.update(match)
         return self.day
+
+
+class Results:
+    def __init__(self):
+        self._match_day = 0
+        self.day = MatchDay()
+        self._results = {}
+
+    def print(self):
+        self._update_results()
+        if not self._results:
+            return
+        sorted_top_3 = (sorted(self._results.items(), key=lambda x: (-x[1], x[0])))[:3]
+        message = [f"\nMatchday {self._match_day}"] + [
+            f"{x[0]}, {x[1]}" for x in sorted_top_3
+        ]
+        print("\n".join(message))
+
+    def _update_results(self):
+        for team, points in self.day:
+            total_points = self._results.get(team, 0)
+            self._results[team] = total_points + points
+        if not self._results:
+            return
+        self._match_day += 1
+
+    def __call__(self, match):
+        if self.day.new_day(match):
+            logger.debug(f"End of Day {self._match_day}: {self.day.day}")
+            self.print()
+            self.day = MatchDay()
+        self.day(match)
