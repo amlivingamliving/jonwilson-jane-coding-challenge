@@ -36,3 +36,18 @@ class Match:
         return {
             team: (score == max(scores)) * 3 for team, score in self.match_data.items()
         }
+
+
+class MatchDay:
+    def __init__(self):
+        self.day = {}
+
+    def __iter__(self):
+        yield from self.day.items()
+
+    def new_day(self, match):
+        return any(team in self.day for team in match)
+
+    def __call__(self, match):
+        self.day.update(match)
+        return self.day
